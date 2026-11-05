@@ -66,6 +66,14 @@ npm test       # בדיקות המנוע
 
 👉 **[מדריך: הרצה על המחשב בבית עם כתובת משלך (Cloudflare Tunnel)](HOME-SERVER.md)**
 
+**שרת Docker** (למשל Hugging Face Spaces, או כל VPS): בתיקייה הראשית של המאגר יש `Dockerfile`.
+חובה להגדיר סוד `DASHBOARD_PASSWORD`. בלעדיו השרת מסרב לעלות, כי לוח הבקרה פתוח לרשת.
+
+```bash
+docker build -t meshiv .
+docker run -d -p 7860:7860 -e DASHBOARD_PASSWORD=סיסמה-חזקה -v meshiv-data:/home/node/data meshiv
+```
+
 ## מבנה
 
 ```

@@ -20,6 +20,11 @@ const PORT = Number(process.env.PORT || 3300);
 const HOST = process.env.HOST || "127.0.0.1";
 const SIMULATOR_ONLY = process.env.MESHIV_SIMULATOR === "1";
 const PASSWORD = process.env.DASHBOARD_PASSWORD || "";
+// כשהשרת פתוח לרשת (שרת ענן, Docker) — בלי סיסמה כל אחד ישלוט בוואטסאפ שלך
+if (!["127.0.0.1", "localhost", "::1"].includes(HOST) && !PASSWORD) {
+  console.error(`❌ HOST=${HOST} פותח את לוח הבקרה לרשת. הגדר DASHBOARD_PASSWORD והפעל שוב.`);
+  process.exit(1);
+}
 const MAX_BODY = 1024 * 1024;
 const LOG_MAX = 500;
 
