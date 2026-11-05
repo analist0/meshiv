@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="he" dir="rtl">
+<html lang="he" dir="rtl" data-platform="server">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,9 +37,19 @@
           <div class="qr" id="qrBox" hidden><div id="qrImg" role="img" aria-label="קוד QR להתחברות"></div><p>פתח WhatsApp בטלפון ← הגדרות ← מכשירים מקושרים ← קישור מכשיר, וסרוק.</p></div>
           <div class="row">
             <button class="btn primary" id="waStart">התחבר</button>
-            <button class="btn" id="waStop">נתק</button>
+            <button class="btn" id="waStop" data-only="server">נתק</button>
+            <button class="btn" id="batteryBtn" data-only="android">🔋 לא להגביל ברקע</button>
           </div>
-          <p class="warn">⚠️ open-wa הוא חיבור לא רשמי ל-WhatsApp Web. WhatsApp עלולה להגביל או לחסום מספרים שמשתמשים באוטומציה. מומלץ להשתמש במספר נפרד ובקצב סביר.</p>
+          <div class="android-help" data-only="android">
+            <p><b>איך זה עובד:</b> משיב קורא את התראות WhatsApp בטלפון ועונה מתוך ההתראה, כמו כשלוחצים "תשובה". לא צריך מחשב, שרת או QR.</p>
+            <ol>
+              <li>לחץ <b>הפעל הרשאת התראות</b> והפעל את "משיב" ברשימה.</li>
+              <li>אם ההפעלה חסומה ("הגדרה מוגבלת"): הגדרות ← אפליקציות ← משיב ← ⋮ ← <b>אפשר הגדרות מוגבלות</b>, ונסה שוב.</li>
+              <li>לחץ <b>לא להגביל ברקע</b> כדי שאנדרואיד לא יעצור את משיב.</li>
+              <li>ב-WhatsApp: ההתראות צריכות להיות פעילות. הבוט עונה רק להודעות שמגיעות כהתראה.</li>
+            </ol>
+          </div>
+          <p class="warn" data-only="server">⚠️ open-wa הוא חיבור לא רשמי ל-WhatsApp Web. WhatsApp עלולה להגביל או לחסום מספרים שמשתמשים באוטומציה. מומלץ להשתמש במספר נפרד ובקצב סביר.</p>
         </div>
         <div class="card">
           <h2>סטטיסטיקה</h2>
@@ -127,8 +137,8 @@
           <h2>🎯 למי לענות</h2>
           <label class="check"><input type="checkbox" data-bind="replyToPrivate" /> צ'אטים פרטיים</label>
           <label class="check"><input type="checkbox" data-bind="replyToGroups" /> קבוצות</label>
-          <label>לעולם לא לענות למספרים (אחד בכל שורה)<textarea rows="3" dir="ltr" data-bind="ignoreContacts" data-type="lines"></textarea></label>
-          <label>לענות רק למספרים האלה (ריק = לכולם)<textarea rows="3" dir="ltr" data-bind="onlyContacts" data-type="lines"></textarea></label>
+          <label>לעולם לא לענות ל- (מספר או שם איש קשר, אחד בכל שורה)<textarea rows="3" dir="ltr" data-bind="ignoreContacts" data-type="lines"></textarea></label>
+          <label>לענות רק ל- (מספרים או שמות; ריק = לכולם)<textarea rows="3" dir="ltr" data-bind="onlyContacts" data-type="lines"></textarea></label>
           <label>מקסימום תשובות ביום לאיש קשר (0 = ללא הגבלה)<input type="number" min="0" data-bind="dailyLimitPerContact" data-type="number" /></label>
         </div>
         <div class="card">
@@ -137,11 +147,11 @@
             <label>השהיה מינימלית (שניות)<input type="number" min="0" data-bind="delay.minSec" data-type="number" /></label>
             <label>השהיה מקסימלית (שניות)<input type="number" min="0" data-bind="delay.maxSec" data-type="number" /></label>
           </div>
-          <label class="check"><input type="checkbox" data-bind="quoteReply" /> לצטט את הודעת הלקוח בתשובה</label>
+          <label class="check" data-only="server"><input type="checkbox" data-bind="quoteReply" /> לצטט את הודעת הלקוח בתשובה</label>
           <label>כשאתה עונה ידנית — להשתיק את הבוט בצ'אט ל- (דקות)<input type="number" min="0" data-bind="humanTakeoverMinutes" data-type="number" /></label>
           <label class="check"><input type="checkbox" data-bind="ownerCommands" /> <span>פקודות בעלים: שלח <code>!עצור</code> או <code>!המשך</code> בצ'אט</span></label>
           <label>אזור זמן<input dir="ltr" data-bind="timezone" /></label>
-          <label class="check"><input type="checkbox" data-bind="autoStart" data-default="true" /> להתחבר ל-WhatsApp אוטומטית בהפעלה</label>
+          <label class="check" data-only="server"><input type="checkbox" data-bind="autoStart" data-default="true" /> להתחבר ל-WhatsApp אוטומטית בהפעלה</label>
         </div>
         <div class="card">
           <h2>💾 גיבוי</h2>

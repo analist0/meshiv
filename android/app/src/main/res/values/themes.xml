@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Meshiv" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#128C5A</item>
+        <item name="android:navigationBarColor">#F4F6F5</item>
+        <item name="android:windowBackground">@color/bg</item>
+    </style>
+    <color name="bg">#F4F6F5</color>
+</resources>

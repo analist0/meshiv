@@ -40,7 +40,31 @@ let cfg = null; // עותק עריכה
 let stats = {};
 
 // ---------- API ----------
+// באפליקציית האנדרואיד אין שרת: הבקשות עוברות לקוד Kotlin דרך גשר
+const ANDROID = Boolean(window.MeshivAndroid);
+if (ANDROID) document.documentElement.dataset.platform = "android";
+const pending = new Map();
+let nextId = 0;
+window.__meshivResolve = (id, status, text) => {
+  const p = pending.get(id);
+  if (!p) return;
+  pending.delete(id);
+  let j = {};
+  try {
+    j = JSON.parse(text);
+  } catch {}
+  if (status >= 200 && status < 300) p.resolve(j);
+  else p.reject(new Error(j.error || `שגיאה ${status}`));
+};
+
 async function api(path, opts = {}) {
+  if (ANDROID) {
+    const id = String(++nextId);
+    return new Promise((resolve, reject) => {
+      pending.set(id, { resolve, reject });
+      window.MeshivAndroid.request(id, path, opts.method || "GET", opts.body ? JSON.stringify(opts.body) : "");
+    });
+  }
   const r = await fetch(path, { headers: { "content-type": "application/json" }, ...opts, body: opts.body ? JSON.stringify(opts.body) : undefined });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(j.error || `שגיאה ${r.status}`);
@@ -331,9 +355,11 @@ $("#aiTest").onclick = async () => {
 $("#exportCfg").onclick = () => {
   const data = structuredClone(cfg);
   if (data.ai.apiKey) data.ai.apiKey = "";
+  const name = `meshiv-config-${new Date().toISOString().slice(0, 10)}.json`;
+  if (ANDROID) return api("/api/android/share", { method: "POST", body: { name, text: JSON.stringify(data, null, 2) } }).catch((e) => toast("❌ " + e.message));
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
-  a.download = `meshiv-config-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 };
@@ -448,6 +474,8 @@ const STATUS = {
   CONNECTED: ["מחובר", "ok", "מחובר ועונה להודעות."],
   ERROR: ["שגיאה", "bad", ""],
   STOPPED: ["מנותק", "", "החיבור נסגר."],
+  ANDROID_ON: ["פעיל בטלפון", "ok", "משיב מאזין להתראות WhatsApp ועונה מתוכן."],
+  ANDROID_OFF: ["אין הרשאה", "bad", "צריך לאשר למשיב לקרוא התראות. לחץ על הכפתור למטה."],
   SIMULATOR: ["מצב סימולטור", "wait", "השרת הופעל עם npm run sim — בלי WhatsApp. אפשר לבדוק הכל בלשונית סימולטור."],
   CONFLICT: ["פתוח במקום אחר", "bad", "WhatsApp Web פתוח במכשיר אחר."],
   UNPAIRED: ["לא מקושר", "bad", "הקישור בוטל מהטלפון. התחבר מחדש."],
@@ -466,10 +494,12 @@ function renderStatus(s) {
     else if (window.QRCode) new window.QRCode(box, { text: s.qr, width: 256, height: 256, correctLevel: window.QRCode.CorrectLevel.L });
     else box.textContent = "לא ניתן להציג QR (אין חיבור לאינטרנט לטעינת הספרייה). סרוק מהטרמינל.";
   }
+  if (ANDROID) $("#waStart").textContent = s.status === "ANDROID_ON" ? "הגדרות הרשאת התראות" : "הפעל הרשאת התראות";
   $("#waStart").disabled = ["STARTING", "QR", "CONNECTED", "SIMULATOR"].includes(s.status);
   $("#waStop").disabled = ["OFF", "STOPPED", "SIMULATOR", "ERROR"].includes(s.status);
 }
 $("#waStart").onclick = () => api("/api/whatsapp/start", { method: "POST" }).catch((e) => toast("❌ " + e.message));
+$("#batteryBtn").onclick = () => api("/api/android/battery", { method: "POST" }).catch((e) => toast("❌ " + e.message));
 $("#waStop").onclick = () => api("/api/whatsapp/stop", { method: "POST" }).catch((e) => toast("❌ " + e.message));
 
 // ---------- Boot ----------
@@ -487,13 +517,28 @@ async function boot() {
   renderAll();
   for (const e of (await api("/api/log")).slice(-100)) pushLog(e);
   renderStatus(await api("/api/status"));
-  const es = new EventSource("/api/events");
-  es.addEventListener("status", (e) => renderStatus(JSON.parse(e.data)));
-  es.addEventListener("log", (e) => {
-    pushLog(JSON.parse(e.data));
+  const onLog = (e) => {
+    pushLog(e);
     clearTimeout(boot.st);
     boot.st = setTimeout(() => loadStats().catch(() => {}), 1500);
-  });
+  };
+  if (ANDROID) {
+    // אין SSE באפליקציה — בודקים כל כמה שניות
+    let lastTs = Math.max(0, ...(await api("/api/log")).map((e) => e.ts));
+    const poll = async () => {
+      renderStatus(await api("/api/status"));
+      for (const e of await api(`/api/log?since=${lastTs}`)) {
+        lastTs = Math.max(lastTs, e.ts);
+        onLog(e);
+      }
+    };
+    window.__meshivRefresh = () => poll().catch(() => {});
+    setInterval(window.__meshivRefresh, 3000);
+  } else {
+    const es = new EventSource("/api/events");
+    es.addEventListener("status", (e) => renderStatus(JSON.parse(e.data)));
+    es.addEventListener("log", (e) => onLog(JSON.parse(e.data)));
+  }
   try {
     const tab = localStorage.getItem("meshiv.tab");
     if (tab) $(`#tabs [data-tab="${tab}"]`)?.click();

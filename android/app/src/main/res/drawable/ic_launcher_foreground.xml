@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- בועת צ'אט עם שלוש נקודות, בתוך אזור הבטיחות של אייקון אדפטיבי -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M54,30c-14.4,0 -26,9.9 -26,22.1c0,6.4 3.2,12.2 8.4,16.2l-2.6,9.7l10.6,-5.6c2.9,0.9 6.1,1.4 9.6,1.4c14.4,0 26,-9.9 26,-22.1S68.4,30 54,30z" />
+    <path android:fillColor="#128C5A" android:pathData="M42,52m-3.4,0a3.4,3.4 0,1 1,6.8 0a3.4,3.4 0,1 1,-6.8 0" />
+    <path android:fillColor="#128C5A" android:pathData="M54,52m-3.4,0a3.4,3.4 0,1 1,6.8 0a3.4,3.4 0,1 1,-6.8 0" />
+    <path android:fillColor="#128C5A" android:pathData="M66,52m-3.4,0a3.4,3.4 0,1 1,6.8 0a3.4,3.4 0,1 1,-6.8 0" />
+</vector>

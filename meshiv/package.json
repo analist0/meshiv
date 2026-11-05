@@ -11,7 +11,7 @@
     "start:env": "node --env-file=.env src/server.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.10"
   },
   "optionalDependencies": {
     "@open-wa/wa-automate": "^5.10.0"

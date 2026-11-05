@@ -5,90 +5,9 @@
 // handle(message) מחזיר החלטה: { replies, reason, ruleId, delayMs }
 // ============================================================
 
-export const DEFAULT_CONFIG = {
-  enabled: true,
-  timezone: "Asia/Jerusalem",
-  replyToGroups: false,
-  replyToPrivate: true,
-  ignoreContacts: [], // מספרים שלא עונים להם לעולם
-  onlyContacts: [], // אם לא ריק — עונים רק להם
-  quoteReply: false,
-  delay: { minSec: 2, maxSec: 6 },
-  dailyLimitPerContact: 30, // 0 = בלי הגבלה
-  humanTakeoverMinutes: 30, // כשאתה עונה ידנית — הבוט שותק בצ'אט הזה
-  ownerCommands: true, // "!עצור" / "!המשך" שנשלחים ממך בצ'אט
-  welcome: { enabled: true, text: "{greeting} {name}! 👋\nתודה שפנית. אענה בהקדם.\nלתפריט שלח: תפריט", everyDays: 0 },
-  businessHours: {
-    enabled: false,
-    days: [0, 1, 2, 3, 4], // 0=ראשון ... 6=שבת
-    from: "09:00",
-    to: "18:00",
-    awayText: "היי {name}, כרגע אנחנו מחוץ לשעות הפעילות (א׳–ה׳ 09:00–18:00). נחזור אליך בהקדם 🙏",
-    awayCooldownMinutes: 180,
-    stopAfterAway: true, // אחרי הודעת "לא זמין" לא ממשיכים לחוקים/AI
-  },
-  menu: {
-    enabled: true,
-    triggers: ["תפריט", "menu", "0"],
-    title: "איך אפשר לעזור? שלח את המספר:",
-    timeoutMinutes: 15,
-    items: [
-      { label: "שעות פעילות", reply: "אנחנו זמינים א׳–ה׳ 09:00–18:00." },
-      { label: "כתובת", reply: "רחוב הדוגמה 1, תל אביב." },
-      {
-        label: "שירותים",
-        title: "בחר שירות:",
-        items: [
-          { label: "ייעוץ", reply: "ייעוץ ראשוני ללא עלות. ספר לנו במה מדובר." },
-          { label: "תמיכה", reply: "תאר את התקלה ונחזור אליך." },
-        ],
-      },
-      { label: "לדבר עם נציג", reply: "מעביר לנציג אנושי. נחזור אליך בהקדם 🙋", pauseBotMinutes: 120 },
-    ],
-  },
-  rules: [
-    {
-      id: "r-hello",
-      name: "ברכה",
-      enabled: true,
-      match: "fuzzy",
-      keywords: ["שלום", "היי", "הי", "אהלן", "hello", "hi"],
-      fuzzyThreshold: 0.8,
-      replies: ["{greeting} {name} 😊 במה אפשר לעזור?", "היי {name}! איך אפשר לעזור היום?"],
-      replyMode: "random",
-      scope: "all",
-      cooldownMinutes: 60,
-      schedule: null,
-      continue: false,
-    },
-    {
-      id: "r-price",
-      name: "מחירים",
-      enabled: true,
-      match: "contains",
-      keywords: ["מחיר", "כמה עולה", "עלות", "price"],
-      replies: ["המחירון המלא שלנו: https://example.com/prices 💰"],
-      replyMode: "random",
-      scope: "all",
-      cooldownMinutes: 0,
-      schedule: null,
-      continue: false,
-    },
-  ],
-  ai: {
-    enabled: false,
-    mode: "fallback", // fallback = רק כשאין חוק מתאים | always = תמיד
-    kind: "openai",
-    baseUrl: "http://localhost:11434/v1",
-    model: "llama3.2",
-    apiKey: "",
-    persona:
-      "אתה נציג שירות לקוחות אדיב ותמציתי שעונה בוואטסאפ בשם העסק. ענה בעברית, במשפטים קצרים, בלי Markdown. אם אינך יודע — אמור שנציג יחזור אליו.",
-    knowledge: "",
-    memoryMessages: 10,
-    maxReplyChars: 800,
-  },
-};
+// ברירות המחדל נמצאות בקובץ JSON משותף לשרת ולאפליקציית האנדרואיד
+import DEFAULT_CONFIG from "./default-config.json" with { type: "json" };
+export { DEFAULT_CONFIG };
 
 // משלים שדות חסרים מברירת המחדל (הגדרות ישנות / קובץ מיובא)
 export function withDefaults(cfg) {
