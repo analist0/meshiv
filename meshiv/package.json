@@ -1,0 +1,19 @@
+{
+  "name": "meshiv",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hebrew advanced WhatsApp auto-responder: rules, menus, schedules, AI replies with any model, dashboard and simulator (open-wa)",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "sim": "MESHIV_SIMULATOR=1 node src/server.js",
+    "test": "node --test test/*.test.js",
+    "start:env": "node --env-file=.env src/server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "optionalDependencies": {
+    "@open-wa/wa-automate": "^5.10.0"
+  }
+}

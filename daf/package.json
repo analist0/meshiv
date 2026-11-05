@@ -1,0 +1,13 @@
+{
+  "name": "daf-notes",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hebrew RTL block-based notes workspace with a pluggable AI assistant (any OpenAI-compatible or Anthropic model, including free and local ones)",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

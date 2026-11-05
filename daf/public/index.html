@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>דף — מחברת חכמה</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <span class="brand-logo">ד</span>
+        <span class="brand-name">דף</span>
+        <button class="icon-btn only-mobile" id="closeSidebar" title="סגור">✕</button>
+      </div>
+      <input class="search" id="search" type="search" placeholder="חיפוש דפים…  (Ctrl+K)" />
+      <div class="side-section">
+        <span>דפים</span>
+        <button class="icon-btn" id="addRoot" title="דף חדש">＋</button>
+      </div>
+      <nav class="tree" id="tree"></nav>
+      <div class="side-footer">
+        <button class="side-btn" id="openSettings">⚙️ הגדרות מודל AI</button>
+        <button class="side-btn" id="exportBtn">⬇️ ייצוא גיבוי</button>
+        <label class="side-btn">⬆️ ייבוא גיבוי<input type="file" id="importFile" accept="application/json" hidden /></label>
+        <button class="side-btn" id="themeBtn">🌓 מצב תצוגה</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn only-mobile" id="openSidebar" title="תפריט">☰</button>
+        <div class="crumbs" id="crumbs"></div>
+        <span class="status" id="status"></span>
+        <button class="btn ai-btn" id="openAI">✨ AI</button>
+      </header>
+
+      <div class="scroller" id="scroller">
+        <article class="page">
+          <button class="page-icon" id="pageIcon" title="החלף אייקון"></button>
+          <h1 class="title" id="title" contenteditable="plaintext-only" spellcheck="true" data-placeholder="ללא כותרת"></h1>
+          <div class="blocks" id="blocks"></div>
+          <div class="add-hint" id="addHint">לחץ כאן או הקלד <kbd>/</kbd> לפקודות</div>
+        </article>
+      </div>
+    </main>
+
+    <aside class="ai-panel" id="aiPanel" aria-hidden="true">
+      <div class="ai-head">
+        <strong>✨ עוזר AI</strong>
+        <span class="ai-model" id="aiModel"></span>
+        <button class="icon-btn" id="closeAI" title="סגור">✕</button>
+      </div>
+      <div class="ai-actions">
+        <button data-act="summarize">📋 סכם את הדף</button>
+        <button data-act="continue">✍️ המשך לכתוב</button>
+        <button data-act="improve">🪄 שפר ניסוח</button>
+        <button data-act="todos">✅ חלץ משימות</button>
+        <button data-act="ideas">💡 רעיונות</button>
+        <button data-act="translate">🌐 תרגם לאנגלית</button>
+      </div>
+      <textarea id="aiPrompt" rows="3" placeholder="שאל כל דבר על הדף… (Ctrl+Enter לשליחה)"></textarea>
+      <div class="ai-row">
+        <label class="ai-check"><input type="checkbox" id="aiUsePage" checked /> לכלול את תוכן הדף</label>
+        <button class="btn primary" id="aiSend">שלח</button>
+      </div>
+      <div class="ai-result" id="aiResult"></div>
+      <div class="ai-row" id="aiResultActions" hidden>
+        <button class="btn" id="aiInsert">➕ הוסף לדף</button>
+        <button class="btn" id="aiReplace">↺ החלף את הדף</button>
+        <button class="btn" id="aiCopy">📋 העתק</button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="menu" id="slashMenu" role="listbox" hidden></div>
+  <div class="menu" id="blockMenu" hidden></div>
+
+  <dialog id="settings">
+    <form method="dialog" class="settings-form" id="settingsForm">
+      <h2>⚙️ חיבור למודל AI</h2>
+      <p class="muted">עובד עם כל מודל: מקומי וחינמי (Ollama, LM Studio), ספקים עם שכבה חינמית (OpenRouter, Groq, Gemini, Hugging Face) או כל API תואם OpenAI, וגם Claude.</p>
+      <label>ספק
+        <select id="sPreset"></select>
+      </label>
+      <p class="muted small" id="sPresetNote"></p>
+      <label>סוג API
+        <select id="sKind">
+          <option value="openai">תואם OpenAI (chat/completions)</option>
+          <option value="anthropic">Anthropic (messages)</option>
+        </select>
+      </label>
+      <label>כתובת בסיס (Base URL)<input id="sBaseUrl" dir="ltr" placeholder="http://localhost:11434/v1" /></label>
+      <label>שם מודל<input id="sModel" dir="ltr" placeholder="llama3.2" /></label>
+      <label>מפתח API (לא חובה לספקים מקומיים)<input id="sApiKey" dir="ltr" type="password" autocomplete="off" placeholder="נשמר רק בדפדפן הזה" /></label>
+      <p class="muted small" id="sServerNote"></p>
+      <div class="ai-row">
+        <button type="button" class="btn" id="sTest">🔌 בדוק חיבור</button>
+        <span class="small" id="sTestResult"></span>
+      </div>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn">ביטול</button>
+        <button value="save" class="btn primary" id="sSave">שמור</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>

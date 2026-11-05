@@ -1,0 +1,4 @@
+node_modules/
+.env
+meshiv/data/
+.DS_Store

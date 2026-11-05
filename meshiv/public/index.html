@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>משיב — מענה אוטומטי לוואטסאפ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><span class="logo">💬</span><b>משיב</b><span class="muted">מענה אוטומטי חכם לוואטסאפ</span></div>
+    <div class="top-status">
+      <span class="pill" id="waPill">…</span>
+      <label class="switch" title="הפעלה/כיבוי של כל המענים"><input type="checkbox" id="masterSwitch" /><span></span> בוט פעיל</label>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="dash" class="active">📊 לוח בקרה</button>
+    <button data-tab="rules">⚡ חוקים</button>
+    <button data-tab="menu">📋 תפריט</button>
+    <button data-tab="ai">🤖 AI</button>
+    <button data-tab="settings">⚙️ הגדרות</button>
+    <button data-tab="sim">🧪 סימולטור</button>
+    <button data-tab="log">📜 יומן ואנשי קשר</button>
+  </nav>
+
+  <main>
+    <!-- Dashboard -->
+    <section class="tab" id="tab-dash">
+      <div class="grid2">
+        <div class="card">
+          <h2>חיבור ל-WhatsApp</h2>
+          <p class="muted" id="waText"></p>
+          <div class="qr" id="qrBox" hidden><div id="qrImg" role="img" aria-label="קוד QR להתחברות"></div><p>פתח WhatsApp בטלפון ← הגדרות ← מכשירים מקושרים ← קישור מכשיר, וסרוק.</p></div>
+          <div class="row">
+            <button class="btn primary" id="waStart">התחבר</button>
+            <button class="btn" id="waStop">נתק</button>
+          </div>
+          <p class="warn">⚠️ open-wa הוא חיבור לא רשמי ל-WhatsApp Web. WhatsApp עלולה להגביל או לחסום מספרים שמשתמשים באוטומציה. מומלץ להשתמש במספר נפרד ובקצב סביר.</p>
+        </div>
+        <div class="card">
+          <h2>סטטיסטיקה</h2>
+          <div class="stats" id="stats"></div>
+          <h3>חוקים מובילים</h3>
+          <ol class="top-rules" id="topRules"></ol>
+        </div>
+      </div>
+      <div class="card">
+        <h2>פעילות אחרונה</h2>
+        <div class="log" id="dashLog"></div>
+      </div>
+    </section>
+
+    <!-- Rules -->
+    <section class="tab" id="tab-rules" hidden>
+      <div class="card">
+        <div class="row between"><h2>חוקי מענה</h2><button class="btn primary" id="addRule">＋ חוק חדש</button></div>
+        <p class="muted">החוקים נבדקים מלמעלה למטה. החוק הראשון שמתאים עונה (אלא אם סימנת "המשך לחוקים הבאים"). משתנים: <code>{name}</code> <code>{phone}</code> <code>{greeting}</code> <code>{day}</code> <code>{date}</code> <code>{time}</code> <code>{message}</code></p>
+      </div>
+      <div id="rulesList"></div>
+    </section>
+
+    <!-- Menu -->
+    <section class="tab" id="tab-menu" hidden>
+      <div class="card">
+        <h2>תפריט אינטראקטיבי</h2>
+        <p class="muted">הלקוח שולח מילת הפעלה ומקבל תפריט ממוספר. כל פריט יכול להחזיר תשובה, לפתוח תת-תפריט, או להעביר לנציג (להשתיק את הבוט).</p>
+        <label class="check"><input type="checkbox" data-bind="menu.enabled" /> תפריט פעיל</label>
+        <div class="grid3">
+          <label>מילות הפעלה (מופרדות בפסיק)<input data-bind="menu.triggers" data-type="csv" /></label>
+          <label>כותרת התפריט<input data-bind="menu.title" /></label>
+          <label>תפוגה (דקות)<input type="number" min="1" data-bind="menu.timeoutMinutes" data-type="number" /></label>
+        </div>
+        <div id="menuTree"></div>
+        <button class="btn" id="addMenuItem">＋ פריט</button>
+      </div>
+    </section>
+
+    <!-- AI -->
+    <section class="tab" id="tab-ai" hidden>
+      <div class="card">
+        <h2>מענה חכם עם AI — כל מודל</h2>
+        <label class="check"><input type="checkbox" data-bind="ai.enabled" /> AI פעיל</label>
+        <div class="grid3">
+          <label>מתי לענות עם AI
+            <select data-bind="ai.mode"><option value="fallback">רק כשאין חוק מתאים</option><option value="always">תמיד (במקום החוקים)</option></select>
+          </label>
+          <label>ספק מוכן<select id="aiPreset"></select></label>
+          <label>סוג API<select data-bind="ai.kind"><option value="openai">תואם OpenAI</option><option value="anthropic">Anthropic</option></select></label>
+          <label>כתובת בסיס<input dir="ltr" data-bind="ai.baseUrl" /></label>
+          <label>מודל<input dir="ltr" data-bind="ai.model" /></label>
+          <label>מפתח API<input dir="ltr" type="password" autocomplete="off" data-bind="ai.apiKey" placeholder="לא חובה ל-Ollama" /></label>
+          <label>זיכרון (הודעות אחרונות)<input type="number" min="0" max="50" data-bind="ai.memoryMessages" data-type="number" /></label>
+          <label>אורך תשובה מרבי (תווים)<input type="number" min="50" data-bind="ai.maxReplyChars" data-type="number" /></label>
+        </div>
+        <p class="muted small" id="aiPresetNote"></p>
+        <label>אישיות והנחיות<textarea rows="4" data-bind="ai.persona"></textarea></label>
+        <label>מאגר ידע על העסק (שעות, מחירים, כתובת, שאלות נפוצות…)<textarea rows="8" data-bind="ai.knowledge" placeholder="לדוגמה:&#10;שעות: א׳–ה׳ 9:00–18:00&#10;משלוח: 30 ₪, חינם מעל 300 ₪"></textarea></label>
+        <div class="row"><button class="btn" id="aiTest">🔌 בדוק חיבור (אחרי שמירה)</button><span id="aiTestResult" class="small"></span></div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section class="tab" id="tab-settings" hidden>
+      <div class="grid2">
+        <div class="card">
+          <h2>👋 הודעת ברוך הבא</h2>
+          <label class="check"><input type="checkbox" data-bind="welcome.enabled" /> לשלוח בפנייה ראשונה</label>
+          <label>טקסט<textarea rows="4" data-bind="welcome.text"></textarea></label>
+          <label>לשלוח שוב אחרי (ימים, 0 = רק פעם אחת)<input type="number" min="0" data-bind="welcome.everyDays" data-type="number" /></label>
+        </div>
+        <div class="card">
+          <h2>🕘 שעות פעילות</h2>
+          <label class="check"><input type="checkbox" data-bind="businessHours.enabled" /> להפעיל שעות פעילות</label>
+          <div class="days" data-days="businessHours.days"></div>
+          <div class="grid2"><label>מ-<input type="time" data-bind="businessHours.from" /></label><label>עד<input type="time" data-bind="businessHours.to" /></label></div>
+          <label>הודעה מחוץ לשעות<textarea rows="3" data-bind="businessHours.awayText"></textarea></label>
+          <div class="grid2">
+            <label>לא לחזור על ההודעה במשך (דקות)<input type="number" min="0" data-bind="businessHours.awayCooldownMinutes" data-type="number" /></label>
+            <label class="check"><input type="checkbox" data-bind="businessHours.stopAfterAway" /> מחוץ לשעות — לא להפעיל חוקים/AI</label>
+          </div>
+        </div>
+        <div class="card">
+          <h2>🎯 למי לענות</h2>
+          <label class="check"><input type="checkbox" data-bind="replyToPrivate" /> צ'אטים פרטיים</label>
+          <label class="check"><input type="checkbox" data-bind="replyToGroups" /> קבוצות</label>
+          <label>לעולם לא לענות למספרים (אחד בכל שורה)<textarea rows="3" dir="ltr" data-bind="ignoreContacts" data-type="lines"></textarea></label>
+          <label>לענות רק למספרים האלה (ריק = לכולם)<textarea rows="3" dir="ltr" data-bind="onlyContacts" data-type="lines"></textarea></label>
+          <label>מקסימום תשובות ביום לאיש קשר (0 = ללא הגבלה)<input type="number" min="0" data-bind="dailyLimitPerContact" data-type="number" /></label>
+        </div>
+        <div class="card">
+          <h2>🧍 התנהגות אנושית</h2>
+          <div class="grid2">
+            <label>השהיה מינימלית (שניות)<input type="number" min="0" data-bind="delay.minSec" data-type="number" /></label>
+            <label>השהיה מקסימלית (שניות)<input type="number" min="0" data-bind="delay.maxSec" data-type="number" /></label>
+          </div>
+          <label class="check"><input type="checkbox" data-bind="quoteReply" /> לצטט את הודעת הלקוח בתשובה</label>
+          <label>כשאתה עונה ידנית — להשתיק את הבוט בצ'אט ל- (דקות)<input type="number" min="0" data-bind="humanTakeoverMinutes" data-type="number" /></label>
+          <label class="check"><input type="checkbox" data-bind="ownerCommands" /> <span>פקודות בעלים: שלח <code>!עצור</code> או <code>!המשך</code> בצ'אט</span></label>
+          <label>אזור זמן<input dir="ltr" data-bind="timezone" /></label>
+          <label class="check"><input type="checkbox" data-bind="autoStart" data-default="true" /> להתחבר ל-WhatsApp אוטומטית בהפעלה</label>
+        </div>
+        <div class="card">
+          <h2>💾 גיבוי</h2>
+          <div class="row">
+            <button class="btn" id="exportCfg">⬇️ ייצוא הגדרות</button>
+            <label class="btn">⬆️ ייבוא<input type="file" id="importCfg" accept="application/json" hidden /></label>
+            <button class="btn danger" id="resetCfg">↺ איפוס לברירת מחדל</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Simulator -->
+    <section class="tab" id="tab-sim" hidden>
+      <div class="card sim">
+        <div class="row between">
+          <h2>סימולטור — בדיקה בלי WhatsApp</h2>
+          <button class="btn" id="simReset">↺ התחל שיחה חדשה</button>
+        </div>
+        <div class="row">
+          <label>שם הלקוח<input id="simName" value="דנה" /></label>
+          <label>טלפון<input id="simPhone" dir="ltr" value="972501234567" /></label>
+          <label class="check"><input type="checkbox" id="simGroup" /> הודעה בקבוצה</label>
+          <label class="check"><input type="checkbox" id="simMe" /> שלח כ"אני" (מענה ידני)</label>
+        </div>
+        <p class="muted small">הסימולטור משתמש בהגדרות השמורות (שמור קודם שינויים) ולא משפיע על הסטטיסטיקה האמיתית.</p>
+        <div class="chat" id="simChat"></div>
+        <form class="chat-input" id="simForm"><input id="simText" placeholder="כתוב הודעה…" autocomplete="off" /><button class="btn primary">שלח</button></form>
+      </div>
+    </section>
+
+    <!-- Log & contacts -->
+    <section class="tab" id="tab-log" hidden>
+      <div class="grid2">
+        <div class="card"><h2>יומן חי</h2><div class="log tall" id="fullLog"></div></div>
+        <div class="card"><div class="row between"><h2>אנשי קשר</h2><button class="btn" id="refreshContacts">רענן</button></div><div id="contacts"></div></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="savebar" id="saveBar" hidden>
+    <span>יש שינויים שלא נשמרו</span>
+    <button class="btn" id="discard">בטל</button>
+    <button class="btn primary" id="save">💾 שמור</button>
+  </div>
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
