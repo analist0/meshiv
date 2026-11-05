@@ -7,3 +7,5 @@
 | [`daf/`](daf/) | **דף**: מחברת בלוקים בעברית מימין לשמאל, עם עוזר AI מכל מודל | Vercel: [daf-notes.vercel.app](https://daf-notes.vercel.app), `daf.elyasharlabs.com` |
 
 לכל אחת מהן יש README משלה עם הוראות התקנה.
+
+📱 **להורדת האפליקציה לאנדרואיד:** [`releases/meshiv-1.0.0.apk`](releases/meshiv-1.0.0.apk)
